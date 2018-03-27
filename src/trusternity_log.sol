@@ -14,9 +14,11 @@ contract Trusternity
 
 	//An Identity Provider struct contains a provider name, 
 	//a public key fingerprint and a List of STR	
-	struct Provider{		
+	struct Provider{	
+		bool registered;
 		string name;
 		bytes32 fingerprint;		
+		uint64 lastepoch;
 		mapping(uint64 => bytes32) rootList;
 	}	
 
@@ -26,15 +28,23 @@ contract Trusternity
 	//An Identity Provider registers itself to the system by providing 
 	//its name and its key fingerprint.	
 	function Register(string _name, bytes32 _fprint){
-		ProviderList[msg.sender].name = _name;
-		ProviderList[msg.sender].fingerprint = _fprint;	
+		if (!ProviderList[msg.sender].registered){
+			ProviderList[msg.sender].registered = true;
+			ProviderList[msg.sender].name = _name;
+			ProviderList[msg.sender].fingerprint = _fprint;	
+			ProviderList[msg.sender].lastepoch = 0;	
+		}
 	}
 
 	//An Provider publishes the STR every epoch.
 	//The STR is mapped to its timeStamp 
-	function Publish(uint64 epoch, bytes32 STR) {		
-		ProviderList[msg.sender].rootList[epoch] = STR;		
-		Published(msg.sender, epoch, STR);
+	function Publish(uint64 epoch, bytes32 STR) {
+		if (ProviderList[msg.sender].registered 
+			&& ProviderList[msg.sender].lastepoch < epoch){	
+			ProviderList[msg.sender].rootList[epoch] = STR;
+			ProviderList[msg.sender].lastepoch = epoch;	
+			Published(msg.sender, epoch, STR);
+		}
 	}
 
 	function GetProviderName(address _ads) returns (string){
