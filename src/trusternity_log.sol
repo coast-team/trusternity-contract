@@ -27,7 +27,7 @@ contract Trusternity
 
 	//An Identity Provider registers itself to the system by providing 
 	//its name and its key fingerprint.	
-	function Register(string _name, bytes32 _fprint){
+	function Register(string _name, bytes32 _fprint) public{
 		if (!ProviderList[msg.sender].registered){
 			ProviderList[msg.sender].registered = true;
 			ProviderList[msg.sender].name = _name;
@@ -38,7 +38,7 @@ contract Trusternity
 
 	//An Provider publishes the STR every epoch.
 	//The STR is mapped to its timeStamp 
-	function Publish(uint64 epoch, bytes32 STR) {
+	function Publish(uint64 epoch, bytes32 STR) public{
 		if (ProviderList[msg.sender].registered 
 			&& ProviderList[msg.sender].lastepoch < epoch){	
 			ProviderList[msg.sender].rootList[epoch] = STR;
@@ -47,15 +47,15 @@ contract Trusternity
 		}
 	}
 
-	function GetProviderName(address _ads) returns (string){
+	function GetProviderName(address _ads) public view returns (string){
 		return ProviderList[_ads].name;
 	}
 
-	function GetProviderFingerprint(address _ads) returns (bytes32){
+	function GetProviderFingerprint(address _ads) public view returns (bytes32){
 		return ProviderList[_ads].fingerprint;
 	}
 
-	function GetSTR(address _ads, uint64 epoch) returns (bytes32){
+	function GetSTR(address _ads, uint64 epoch) public view returns (bytes32){
 		return ProviderList[_ads].rootList[epoch];
 	}
 }
